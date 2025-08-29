@@ -23,6 +23,7 @@ export async function onRequest(context) {
             headers: {
                 //'Origin': requestUrl.origin, // The proxy service requires an Origin header.
                 //'X-Requested-With': 'XMLHttpRequest',
+                'Accept': '*/*',
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36'
             },
             method: request.method,
