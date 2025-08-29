@@ -77,5 +77,9 @@ export async function onRequest(context) {
   </script>
 </body>
 </html>`
-    return new Response(html, { status: 200 });
+
+    const finalHeaders = new Headers({
+        'Content-Type': 'text/html'
+    });
+    return new Response(html, { status: 200 ,headers: finalHeaders});
 }
