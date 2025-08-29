@@ -10,7 +10,7 @@ export async function onRequest(context) {
         // 检查请求路径是否为根路径
         if (requestUrl.pathname === '/') {
             // 返回undefined让Pages继续处理静态文件
-            return;
+            return new Response("is/", { status: 200 });
         }
         if (!requestUrl.pathname.startsWith("/https://") && !requestUrl.pathname.startsWith("/http://")) {
             return new Response("Query parameter 'url' is missing.", { status: 400 });
