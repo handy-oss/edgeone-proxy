@@ -21,8 +21,9 @@ export async function onRequest(context) {
         // We can now use a much simpler request, as the proxy service will handle headers.
         const modifiedRequest = new Request(actualUrlStr, {
             headers: {
-                'Origin': requestUrl.origin, // The proxy service requires an Origin header.
-                'X-Requested-With': 'XMLHttpRequest'
+                //'Origin': requestUrl.origin, // The proxy service requires an Origin header.
+                //'X-Requested-With': 'XMLHttpRequest',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36'
             },
             method: request.method,
             body: (request.method === 'POST' || request.method === 'PUT') ? request.body : null,
