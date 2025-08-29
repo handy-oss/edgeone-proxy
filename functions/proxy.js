@@ -14,7 +14,8 @@ export async function onRequest(context) {
         }
 
         // **CRITICAL FIX: Use a professional proxy service.**
-        const proxyServiceUrl = 'https://cors-anywhere.herokuapp.com/';
+        //const proxyServiceUrl = 'https://cors-anywhere.herokuapp.com/';
+        const proxyServiceUrl = '';
         const actualUrlStr = proxyServiceUrl + targetUrlParam;
 
         // We can now use a much simpler request, as the proxy service will handle headers.
