@@ -22,12 +22,8 @@ export async function onRequest(context) {
         const actualUrlStr = proxyServiceUrl + targetUrlParam;
 
         // We can now use a much simpler request, as the proxy service will handle headers.
-        const h = {}
-        request.headers.forEach((v,k)=>{
-            if (k.toLowerCase() !== "host") {
-                h[k] = v
-            }
-        })
+        const h = new Headers(request.headers)
+        h.delete("Host")
         const modifiedRequest = new Request(actualUrlStr, {
             headers: h,
             method: request.method,
