@@ -22,10 +22,15 @@ export async function onRequest(context) {
         const actualUrlStr = proxyServiceUrl + targetUrlParam;
 
         // We can now use a much simpler request, as the proxy service will handle headers.
-        const h = new Headers(request.headers)
-        h.delete("Host")
+        // const h = new Headers(request.headers)
+        // h.delete("Host")
         const modifiedRequest = new Request(actualUrlStr, {
-            headers: h,
+            headers: {
+                //'Origin': requestUrl.origin, // The proxy service requires an Origin header.
+                //'X-Requested-With': 'XMLHttpRequest',
+                'Accept': '*/*',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36'
+            },
             method: request.method,
             body: (request.method === 'POST' || request.method === 'PUT') ? request.body : null,
             redirect: 'follow' // We can let the proxy service handle redirects.
@@ -35,7 +40,7 @@ export async function onRequest(context) {
 
         // We still need to filter Set-Cookie to avoid browser security issues.
         const finalHeaders = new Headers(response.headers);
-        // finalHeaders.delete('Set-Cookie');
+        finalHeaders.delete('Set-Cookie');
 
         // Since the third-party proxy handles all content, we don't need our own HTML rewriter.
         return new Response(response.body, {
