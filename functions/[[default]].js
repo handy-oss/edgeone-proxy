@@ -7,11 +7,6 @@ export async function onRequest(context) {
 
     try {
         const requestUrl = new URL(request.url);
-        // 检查请求路径是否为根路径
-        if (requestUrl.pathname === '/') {
-            // 返回undefined让Pages继续处理静态文件
-            return new Response("is/", { status: 200 });
-        }
         if (!requestUrl.pathname.startsWith("/https://") && !requestUrl.pathname.startsWith("/http://")) {
             return new Response("Query parameter 'url' does not start with 'http(s)'", { status: 400 });
         }
@@ -28,12 +23,7 @@ export async function onRequest(context) {
 
         // We can now use a much simpler request, as the proxy service will handle headers.
         const modifiedRequest = new Request(actualUrlStr, {
-            headers: {
-                //'Origin': requestUrl.origin, // The proxy service requires an Origin header.
-                //'X-Requested-With': 'XMLHttpRequest',
-                'Accept': '*/*',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36'
-            },
+            headers: request.headers,
             method: request.method,
             body: (request.method === 'POST' || request.method === 'PUT') ? request.body : null,
             redirect: 'follow' // We can let the proxy service handle redirects.
@@ -43,7 +33,7 @@ export async function onRequest(context) {
 
         // We still need to filter Set-Cookie to avoid browser security issues.
         const finalHeaders = new Headers(response.headers);
-        finalHeaders.delete('Set-Cookie');
+        // finalHeaders.delete('Set-Cookie');
 
         // Since the third-party proxy handles all content, we don't need our own HTML rewriter.
         return new Response(response.body, {
