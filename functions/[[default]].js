@@ -28,6 +28,7 @@ export async function onRequest(context) {
                 h[k] = v
             }
         })
+        return new Response("headers:"+JSON.stringify(h), { status: 200 });
         const modifiedRequest = new Request(actualUrlStr, {
             headers: h,
             method: request.method,
