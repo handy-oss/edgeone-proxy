@@ -26,7 +26,7 @@ export async function onRequest(context) {
         request.headers.forEach((v,k)=>{
             h[k] = v
         })
-        return new Response("header data:"+JSON.stringify(h), { status: 400 });
+        return new Response("header data:"+JSON.stringify(h), { status: 200 });
         const modifiedRequest = new Request(actualUrlStr, {
             headers: h,
             method: request.method,
