@@ -23,11 +23,12 @@ export async function onRequest(context) {
 
         // We can now use a much simpler request, as the proxy service will handle headers.
         const modifiedRequest = new Request(actualUrlStr, {
-            headers: request.headers,
+            // headers: ,
             method: request.method,
             body: (request.method === 'POST' || request.method === 'PUT') ? request.body : null,
             redirect: 'follow' // We can let the proxy service handle redirects.
         });
+        modifiedRequest.headers = request.headers
 
         const response = await fetch(modifiedRequest);
 
