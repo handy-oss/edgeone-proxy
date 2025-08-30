@@ -24,9 +24,10 @@ export async function onRequest(context) {
         // We can now use a much simpler request, as the proxy service will handle headers.
         const h = {}
         request.headers.forEach((v,k)=>{
-            h[k] = v
+            if (k !== "host") {
+                h[k] = v
+            }
         })
-        return new Response("header data:"+JSON.stringify(h), { status: 200 });
         const modifiedRequest = new Request(actualUrlStr, {
             headers: h,
             method: request.method,
