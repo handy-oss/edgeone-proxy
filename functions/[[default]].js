@@ -22,13 +22,17 @@ export async function onRequest(context) {
         const actualUrlStr = proxyServiceUrl + targetUrlParam;
 
         // We can now use a much simpler request, as the proxy service will handle headers.
+        const h = {}
+        request.headers.forEach((v,k)=>{
+            h[k] = v
+        })
+        return new Response("header data:"+JSON.stringify(h), { status: 400 });
         const modifiedRequest = new Request(actualUrlStr, {
-            // headers: ,
+            headers: h,
             method: request.method,
             body: (request.method === 'POST' || request.method === 'PUT') ? request.body : null,
             redirect: 'follow' // We can let the proxy service handle redirects.
         });
-        modifiedRequest.headers = request.headers
 
         const response = await fetch(modifiedRequest);
 
