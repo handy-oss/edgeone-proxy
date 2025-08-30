@@ -24,7 +24,7 @@ export async function onRequest(context) {
         // We can now use a much simpler request, as the proxy service will handle headers.
         const h = {}
         request.headers.forEach((v,k)=>{
-            if (k !== "host") {
+            if (k.toLowerCase() !== "host") {
                 h[k] = v
             }
         })
