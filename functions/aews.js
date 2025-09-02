@@ -20,7 +20,7 @@ export async function onRequest(context) {
             redirect: 'follow' // We can let the proxy service handle redirects.
         });
         const jsons = await fetch(branchRequest);
-        if (jsons.status === 200) {
+        if (jsons.status !== 200) {
             return new Response("Query branch error " + jsons.statusText, { status: 400 });
         }
         const branchInfo = await jsons.json()
