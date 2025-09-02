@@ -35,13 +35,6 @@ export async function onRequest(context) {
             return new Response("Subscribe addr not exist", { status: 400 });
         }
 
-        const requestUrl = new URL(request.url);
-        const targetUrlParam = requestUrl.searchParams.get('url');
-
-        if (!targetUrlParam) {
-            return new Response("Query parameter 'url' is missing.", { status: 400 });
-        }
-
         const actualUrlStr = "https://cdn.jsdelivr.net/gh/aews/jd@main/" + subname;
 
         // We can now use a much simpler request, as the proxy service will handle headers.
