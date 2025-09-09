@@ -67,7 +67,8 @@ export async function onRequest(context) {
       event.preventDefault();
       const targetUrl = document.getElementById('targetUrl').value.trim();
       if (targetUrl) {
-        const proxyUrl = window.location.origin + '/proxy?url=' + encodeURIComponent(targetUrl);
+        // const proxyUrl = window.location.origin + '/proxy?url=' + encodeURIComponent(targetUrl);
+        const proxyUrl = window.location.origin + '/targetUrl;
         window.open(proxyUrl, '_blank');
       }
     }
