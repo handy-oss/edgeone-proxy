@@ -7,9 +7,14 @@ export async function onRequest(context) {
 
     try {
         const requestUrl = new URL(request.url);
-        if (!requestUrl.pathname.startsWith("/https://") && !requestUrl.pathname.startsWith("/http://")) {
+        const reg = requestUrl.pathname.match(/^(\/(\w*))?\/https?:\/\//)
+        if (!reg) {
             return new Response("Query parameter 'url' does not start with 'http(s)'", { status: 400 });
         }
+        const action = reg[2]
+        // if (!requestUrl.pathname.startsWith("/https://") && !requestUrl.pathname.startsWith("/http://")) {
+        //     return new Response("Query parameter 'url' does not start with 'http(s)'", { status: 400 });
+        // }
         const targetUrlParam = requestUrl.href.substring(requestUrl.origin.length+1);
 
         if (!targetUrlParam) {
@@ -41,9 +46,14 @@ export async function onRequest(context) {
         // We still need to filter Set-Cookie to avoid browser security issues.
         const finalHeaders = new Headers(response.headers);
         finalHeaders.delete('Set-Cookie');
+        let body = response.body
+        if (action === "base64") {
+            body = new Buffer(body).toString('base64');
+            finalHeaders.delete("Content-Length")
+        }
 
         // Since the third-party proxy handles all content, we don't need our own HTML rewriter.
-        return new Response(response.body, {
+        return new Response(body, {
             status: response.status,
             statusText: response.statusText,
             headers: finalHeaders
