@@ -49,7 +49,12 @@ export async function onRequest(context) {
         finalHeaders.delete('Set-Cookie');
         let body = response.body
         if (action === "base64") {
-            body = new Buffer(body).toString('base64');
+            function stringToBase64(str) {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(str);
+                return btoa(String.fromCharCode(...data));
+            }
+            body = stringToBase64(await response.text());
             finalHeaders.delete("Content-Length")
         }
 
