@@ -7,7 +7,7 @@ export async function onRequest(context) {
 
     try {
         const requestUrl = new URL(request.url);
-        const reg = requestUrl.pathname.match(/^(\/(\w*))?\/https?:\/\//)
+        const reg = requestUrl.pathname.match(/^(\/(\w*))?\/(https?:\/\/.*)$/)
         if (!reg) {
             return new Response("Query parameter 'url' does not start with 'http(s)'", { status: 400 });
         }
@@ -15,7 +15,8 @@ export async function onRequest(context) {
         // if (!requestUrl.pathname.startsWith("/https://") && !requestUrl.pathname.startsWith("/http://")) {
         //     return new Response("Query parameter 'url' does not start with 'http(s)'", { status: 400 });
         // }
-        const targetUrlParam = requestUrl.href.substring(requestUrl.origin.length+1);
+        // const targetUrlParam = requestUrl.href.substring(requestUrl.origin.length+1);
+        const targetUrlParam = reg[3];
 
         if (!targetUrlParam) {
             return new Response("Query parameter 'url' is missing.", { status: 400 });
