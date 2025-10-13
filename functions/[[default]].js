@@ -2,6 +2,24 @@
  * This is the final, correct version of the proxy function.
  * It leverages a professional third-party proxy to handle anti-bot measures.
  */
+
+// 将字符串转换为 Uint8Array 再编码
+function stringToBase64(str) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(str);
+    return btoa(String.fromCharCode(...data));
+}
+
+// 解码
+function base64ToString(base64) {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return new TextDecoder().decode(bytes);
+}
+
 export async function onRequest(context) {
     const { request } = context;
 
@@ -49,12 +67,10 @@ export async function onRequest(context) {
         finalHeaders.delete('Set-Cookie');
         let body = response.body
         if (action === "base64") {
-            function stringToBase64(str) {
-                const encoder = new TextEncoder();
-                const data = encoder.encode(str);
-                return btoa(String.fromCharCode(...data));
-            }
             body = stringToBase64(await response.text());
+            finalHeaders.delete("Content-Length")
+        } else if (action === "unbase64") {
+            body = base64ToString(await response.text());
             finalHeaders.delete("Content-Length")
         }
 
