@@ -61,7 +61,7 @@ class SubscriptionConverter {
                     case 'anytls':
                         return this.convertAnyTLS(proxy);
                     default:
-                        console.warn(`不支持的协议类型: ${proxy.type}`);
+                        // console.warn(`不支持的协议类型: ${proxy.type}`);
                         return null;
                 }
             } catch (e) {
