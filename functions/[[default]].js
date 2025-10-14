@@ -17,14 +17,34 @@ const yaml = (function(){
 
 
 // 将字符串转换为 Uint8Array 再编码
-function stringToBase64(str) {
+// function stringToBase64(str) {
+//     const encoder = new TextEncoder();
+//     const data = encoder.encode(str);
+//     let binary = ""
+//     for (let i = 0; i < data.byteLength; i++) {
+//         binary += String.fromCharCode(data[i]);
+//     }
+//     return btoa(binary);
+// }
+
+function stringToBase64(str, chunkSize = 32768) { // 32KB chunks
     const encoder = new TextEncoder();
     const data = encoder.encode(str);
-    let binary = ""
-    for (let i = 0; i < data.byteLength; i++) {
-        binary += String.fromCharCode(data[i]);
+    const result = [];
+
+    for (let i = 0; i < data.length; i += chunkSize) {
+        const chunk = data.subarray(i, Math.min(i + chunkSize, data.length));
+        let binary = '';
+
+        // 处理小块，避免大字符串拼接
+        for (let j = 0; j < chunk.length; j++) {
+            binary += String.fromCharCode(chunk[j]);
+        }
+
+        result.push(btoa(binary));
     }
-    return btoa(binary);
+
+    return result.join('');
 }
 
 function asyncStringToBase64(str) {
@@ -89,7 +109,7 @@ class SubscriptionConverter {
         }).filter(link => link !== null);
 
         const subscriptionContent = links.join('\n');
-        return  asyncStringToBase64(subscriptionContent);
+        return  stringToBase64(subscriptionContent);
     }
 
     // VMess 转换
@@ -471,7 +491,7 @@ export async function onRequest(context) {
             body = base64ToString(await response.text());
             finalHeaders.delete("Content-Length")
         } else if (action === "y2v") {
-            body = await SubscriptionConverter.yamlToV2ray(await response.text());
+            body = SubscriptionConverter.yamlToV2ray(await response.text());
             finalHeaders.delete("Content-Length")
         }
 
