@@ -74,6 +74,7 @@ class SubscriptionConverter {
         }).filter(link => link !== null);
 
         const subscriptionContent = links.join('\n');
+        return subscriptionContent
         return stringToBase64(subscriptionContent);
     }
 
