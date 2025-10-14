@@ -3,7 +3,7 @@
  * It leverages a professional third-party proxy to handle anti-bot measures.
  */
 
-import yaml from 'https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.mjs'
+//import yaml from 'https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.mjs'
 
 // 将字符串转换为 Uint8Array 再编码
 function stringToBase64(str) {
