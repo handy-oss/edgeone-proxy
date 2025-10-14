@@ -20,7 +20,11 @@ const yaml = (function(){
 function stringToBase64(str) {
     const encoder = new TextEncoder();
     const data = encoder.encode(str);
-    return btoa(String.fromCharCode(...data));
+    let binary = ""
+    for (let i = 0; i < data.byteLength; i++) {
+        binary += String.fromCharCode(data[i]);
+    }
+    return btoa(binary);
 }
 
 // 解码
