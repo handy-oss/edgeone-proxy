@@ -52,6 +52,8 @@ class SubscriptionConverter {
                         return this.convertShadowsocks(proxy);
                     case 'hysteria2':
                         return this.convertHysteria2(proxy);
+                    case 'ssr':
+                        return this.convertSSR(proxy);
                     case 'wireguard':
                         return this.convertWireguardToUrl(proxy);
                     case 'tuic':
@@ -90,7 +92,7 @@ class SubscriptionConverter {
             alpn: proxy.alpn || ""
         };
         if (config.net === "ws") {
-            config.host = proxy['ws-opts']?.['headers']?.['Host'] || proxy['ws-opts']?.['headers']?.['HOST'] || ""
+            config.host = proxy['ws-opts']?.['headers']?.['host'] || proxy['ws-opts']?.['headers']?.['Host'] || proxy['ws-opts']?.['headers']?.['HOST'] || ""
         }
 
         const jsonStr = JSON.stringify(config);
@@ -123,7 +125,8 @@ class SubscriptionConverter {
         if (proxy.network === 'ws') {
             params.set('type', 'ws');
             if (proxy['ws-opts']?.['path']) params.set('path', proxy['ws-opts']?.['path']);
-            if (proxy['ws-opts']?.['headers']?.['Host']) params.set('host', proxy['ws-opts']?.['headers']?.['Host']);
+            let host = proxy['ws-opts']?.['headers']?.['host'] || proxy['ws-opts']?.['headers']?.['Host'] || proxy['ws-opts']?.['headers']?.['HOST']
+            if (host) params.set('host', host);
         } else if (proxy.network === 'grpc') {
             params.set('type', 'grpc');
             if (proxy['grpc-opts']?.['grpc-service-name']) params.set('serviceName', proxy['grpc-opts']['grpc-service-name']);
@@ -153,8 +156,9 @@ class SubscriptionConverter {
         // 传输协议
         if (proxy.network === 'ws') {
             params.set('type', 'ws');
-            if (proxy['ws-path']) params.set('path', proxy['ws-path']);
-            if (proxy['ws-headers']?.['Host']) params.set('host', proxy['ws-headers']['Host']);
+            if (proxy['ws-opts']?.['path']) params.set('path', proxy['ws-opts']?.['path']);
+            let host = proxy['ws-opts']?.['headers']?.['host'] || proxy['ws-opts']?.['headers']?.['Host'] || proxy['ws-opts']?.['headers']?.['HOST']
+            if (host) params.set('host', host);
         } else if (proxy.network === 'grpc') {
             params.set('type', 'grpc');
             if (proxy['grpc-opts']?.['grpc-service-name']) params.set('serviceName', proxy['grpc-opts']['grpc-service-name']);
@@ -214,6 +218,54 @@ class SubscriptionConverter {
         if (proxy.up) params.set('upmbps', proxy.up.toString());
 
         return `hysteria2://${encodeURIComponent(password)}@${proxy.server}:${proxy.port}?${params.toString()}#${encodeURIComponent(proxy.name || proxy.server)}`;
+    }
+
+    // ShadowsocksR (SSR) 转换
+    static convertSSR(proxy) {
+        // SSR 格式: ssr://base64(server:port:protocol:method:obfs:base64password/?params)
+        // params: obfsparam=base64param&protoparam=base64param&remarks=base64name&group=base64group&udpport=0&uot=0
+
+        const server = proxy.server;
+        const port = proxy.port || 443;
+        const protocol = proxy.protocol || 'origin';
+        const method = proxy.cipher || 'aes-256-cfb';
+        const obfs = proxy.obfs || 'plain';
+
+        // 编码密码
+        const passwordBase64 = stringToBase64(proxy.password || '');
+
+        // 构建参数字符串
+        const params = new URLSearchParams();
+
+        // obfsparam
+        if (proxy['obfs-param']) {
+            params.set('obfsparam', stringToBase64(proxy['obfs-param']));
+        }
+
+        // protoparam
+        if (proxy['protocol-param']) {
+            params.set('protoparam', stringToBase64(proxy['protocol-param']));
+        }
+
+        // remarks (节点名称)
+        if (proxy.name) {
+            params.set('remarks', stringToBase64(proxy.name));
+        }
+
+        // group (通常为空)
+        // params.set('group', stringToBase64(''));
+        params.set('group', "");
+
+        // 其他固定参数
+        params.set('udpport', '0');
+        params.set('uot', '0');
+
+        // 构建主字符串
+        const mainPart = `${server}:${port}:${protocol}:${method}:${obfs}:${passwordBase64}`;
+        const fullString = `${mainPart}/?${params.toString()}`;
+
+        // 返回 SSR 链接
+        return `ssr://${stringToBase64(fullString)}`;
     }
 
     static convertWireguardToJson(proxy) {
