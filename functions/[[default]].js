@@ -83,12 +83,15 @@ class SubscriptionConverter {
             scy: proxy.cipher || "auto",
             net: proxy.network || "tcp",
             type: proxy.type || "none",
-            host: proxy['ws-headers']?.['Host'] || proxy.host || "",
-            path: proxy['ws-path'] || proxy.path || "",
+            host: proxy['ws-opts']?.['headers']?.['Host'] || proxy.host || "",
+            path: proxy['ws-opts']?.['path'] || proxy.path || "",
             tls: proxy.tls ? "tls" : "",
             sni: proxy.servername || proxy.sni || "",
             alpn: proxy.alpn || ""
         };
+        if (config.net === "ws") {
+            config.host = proxy['ws-opts']?.['headers']?.['Host'] || proxy['ws-opts']?.['headers']?.['HOST'] || ""
+        }
 
         const jsonStr = JSON.stringify(config);
         return `vmess://${stringToBase64(jsonStr)}`;
@@ -120,7 +123,7 @@ class SubscriptionConverter {
         if (proxy.network === 'ws') {
             params.set('type', 'ws');
             if (proxy['ws-opts']?.['path']) params.set('path', proxy['ws-opts']?.['path']);
-            if (proxy['ws-opts']?.['Host']) params.set('host', proxy['ws-opts']['Host']);
+            if (proxy['ws-opts']?.['headers']?.['Host']) params.set('host', proxy['ws-opts']?.['headers']?.['Host']);
         } else if (proxy.network === 'grpc') {
             params.set('type', 'grpc');
             if (proxy['grpc-opts']?.['grpc-service-name']) params.set('serviceName', proxy['grpc-opts']['grpc-service-name']);
