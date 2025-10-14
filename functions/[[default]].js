@@ -85,14 +85,22 @@ class SubscriptionConverter {
             scy: proxy.cipher || "auto",
             net: proxy.network || "tcp",
             type: proxy.type || "none",
-            host: proxy['ws-opts']?.['headers']?.['Host'] || proxy.host || "",
-            path: proxy['ws-opts']?.['path'] || proxy.path || "",
+            host: proxy.host || "",
+            path: proxy.path || "",
             tls: proxy.tls ? "tls" : "",
             sni: proxy.servername || proxy.sni || "",
             alpn: proxy.alpn || ""
         };
         if (config.net === "ws") {
             config.host = proxy['ws-opts']?.['headers']?.['host'] || proxy['ws-opts']?.['headers']?.['Host'] || proxy['ws-opts']?.['headers']?.['HOST'] || ""
+            config.path = proxy['ws-opts']?.['path'] || ""
+        } else if (config.net === "h2") {
+            config.path = proxy['h2-opts']?.['path'] || ""
+            if (proxy['h2-opts']?.host) config.host = Array.isArray(proxy['h2-opts'].host) ? proxy['h2-opts'].host.join(',') : proxy['h2-opts'].host
+        }
+
+        if (config.tls) {
+            if (proxy['client-fingerprint']) config.fp = proxy['client-fingerprint']
         }
 
         const jsonStr = JSON.stringify(config);
@@ -111,10 +119,12 @@ class SubscriptionConverter {
         if (proxy.tls) {
             params.set('security', 'tls');
             if (proxy.servername) params.set('sni', proxy.servername);
+            if (proxy['client-fingerprint']) params.set('fp', proxy['client-fingerprint']);
             if (proxy.alpn) params.set('alpn', Array.isArray(proxy.alpn) ? proxy.alpn.join(',') : proxy.alpn);
         } else if (proxy.reality) {
             params.set('security', 'reality');
             if (proxy.servername) params.set('sni', proxy.servername);
+            if (proxy['client-fingerprint']) params.set('fp', proxy['client-fingerprint']);
             if (proxy['reality-opts']?.['public-key']) params.set('pbk', proxy['reality-opts']['public-key']);
             if (proxy['reality-opts']?.['short-id']) params.set('sid', proxy['reality-opts']['short-id']);
         } else {
