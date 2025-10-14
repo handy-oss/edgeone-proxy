@@ -91,7 +91,7 @@ class SubscriptionConverter {
         };
 
         const jsonStr = JSON.stringify(config);
-        return `vmess://${btoa(unescape(encodeURIComponent(jsonStr)))}`;
+        return `vmess://${stringToBase64(jsonStr)}`;
     }
 
     // VLESS 转换
@@ -110,8 +110,8 @@ class SubscriptionConverter {
         } else if (proxy.reality) {
             params.set('security', 'reality');
             if (proxy.servername) params.set('sni', proxy.servername);
-            if (proxy['reality-opts']?.publicKey) params.set('pbk', proxy['reality-opts'].publicKey);
-            if (proxy['reality-opts']?.shortId) params.set('sid', proxy['reality-opts'].shortId);
+            if (proxy['reality-opts']?.['public-key']) params.set('pbk', proxy['reality-opts']['public-key']);
+            if (proxy['reality-opts']?.['short-id']) params.set('sid', proxy['reality-opts']['short-id']);
         } else {
             params.set('security', 'none');
         }
@@ -119,8 +119,8 @@ class SubscriptionConverter {
         // 传输协议
         if (proxy.network === 'ws') {
             params.set('type', 'ws');
-            if (proxy['ws-path']) params.set('path', proxy['ws-path']);
-            if (proxy['ws-headers']?.['Host']) params.set('host', proxy['ws-headers']['Host']);
+            if (proxy['ws-opts']?.['path']) params.set('path', proxy['ws-opts']?.['path']);
+            if (proxy['ws-opts']?.['Host']) params.set('host', proxy['ws-opts']['Host']);
         } else if (proxy.network === 'grpc') {
             params.set('type', 'grpc');
             if (proxy['grpc-opts']?.['grpc-service-name']) params.set('serviceName', proxy['grpc-opts']['grpc-service-name']);
@@ -161,7 +161,7 @@ class SubscriptionConverter {
         if (proxy.flow) params.set('flow', proxy.flow);
         if (proxy.fingerprint) params.set('fp', proxy.fingerprint);
 
-        return `trojan://${proxy.password}@${proxy.server}:${proxy.port}?${params.toString()}#${encodeURIComponent(proxy.name || proxy.server)}`;
+        return `trojan://${encodeURIComponent(proxy.password)}@${proxy.server}:${proxy.port}?${params.toString()}#${encodeURIComponent(proxy.name || proxy.server)}`;
     }
 
     // Shadowsocks 转换
@@ -193,9 +193,7 @@ class SubscriptionConverter {
         const params = new URLSearchParams();
 
         // 认证方式
-        if (proxy.password) {
-            params.set('auth', proxy.password);
-        }
+        const password = proxy.password || proxy.auth
 
         // TLS 配置
         if (proxy.sni) params.set('sni', proxy.sni);
@@ -212,7 +210,7 @@ class SubscriptionConverter {
         if (proxy.down) params.set('downmbps', proxy.down.toString());
         if (proxy.up) params.set('upmbps', proxy.up.toString());
 
-        return `hysteria2://${proxy.server}:${proxy.port}?${params.toString()}#${encodeURIComponent(proxy.name || proxy.server)}`;
+        return `hysteria2://${encodeURIComponent(password)}@${proxy.server}:${proxy.port}?${params.toString()}#${encodeURIComponent(proxy.name || proxy.server)}`;
     }
 
     static convertWireguardToJson(proxy) {
@@ -243,9 +241,9 @@ class SubscriptionConverter {
         const params = new URLSearchParams();
 
         // 必需参数
-        if (proxy['private-key']) {
-            params.set('privatekey', proxy['private-key']);
-        }
+        // if (proxy['private-key']) {
+        //     params.set('privatekey', proxy['private-key']);
+        // }
 
         if (proxy['public-key']) {
             params.set('publickey', proxy['public-key']);
@@ -275,9 +273,9 @@ class SubscriptionConverter {
         const port = proxy.port || '51820';
 
         // 使用私钥作为用户名（这是常见的做法）
-        const privateKeyShort = proxy['private-key'] ? proxy['private-key'].substring(0, 8) : 'default';
+        const privateKeyShort = proxy['private-key'] ? proxy['private-key'] : 'default';
 
-        return `wireguard://${privateKeyShort}@${endpoint}:${port}?${params.toString()}#${encodeURIComponent(proxy.name || proxy.server)}`;
+        return `wireguard://${encodeURIComponent(privateKeyShort)}@${endpoint}:${port}?${params.toString()}#${encodeURIComponent(proxy.name || proxy.server)}`;
     }
 
     // TUIC 转换
@@ -305,7 +303,7 @@ class SubscriptionConverter {
         // 其他参数
         if (proxy.disable_sni) params.set('disable_sni', '1');
 
-        return `tuic://${proxy.server}:${proxy.port}?${params.toString()}#${encodeURIComponent(proxy.name || proxy.server)}`;
+        return `tuic://${encodeURIComponent((proxy.uuid ?? "")+":"+(proxy.password ?? ""))}@${proxy.server}:${proxy.port}?${params.toString()}#${encodeURIComponent(proxy.name || proxy.server)}`;
     }
 
     // AnyTLS 转换（假设为自定义 TLS 协议）
@@ -332,7 +330,7 @@ class SubscriptionConverter {
             });
         }
 
-        return `anytls://${proxy.server}:${proxy.port}?${params.toString()}#${encodeURIComponent(proxy.name || proxy.server)}`;
+        return `anytls://${encodeURIComponent(proxy.password)}@${proxy.server}:${proxy.port}?${params.toString()}#${encodeURIComponent(proxy.name || proxy.server)}`;
     }
 }
 
