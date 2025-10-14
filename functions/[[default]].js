@@ -27,6 +27,21 @@ function stringToBase64(str) {
     return btoa(binary);
 }
 
+function asyncStringToBase64(str) {
+    // 使用 Blob 处理大字符串
+    const blob = new Blob([str]);
+    return  new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            // 移除 data URL 前缀 "data:;base64,"
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+
 // 解码
 function base64ToString(base64) {
     const binary = atob(base64);
@@ -74,8 +89,7 @@ class SubscriptionConverter {
         }).filter(link => link !== null);
 
         const subscriptionContent = links.join('\n');
-        return subscriptionContent
-        return stringToBase64(subscriptionContent);
+        return  asyncStringToBase64(subscriptionContent);
     }
 
     // VMess 转换
@@ -457,7 +471,7 @@ export async function onRequest(context) {
             body = base64ToString(await response.text());
             finalHeaders.delete("Content-Length")
         } else if (action === "y2v") {
-            body = SubscriptionConverter.yamlToV2ray(await response.text());
+            body = await SubscriptionConverter.yamlToV2ray(await response.text());
             finalHeaders.delete("Content-Length")
         }
 
