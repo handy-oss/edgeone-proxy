@@ -99,37 +99,42 @@ class SubscriptionConverter {
     static yamlToV2ray(yamlData) {
         const config = yaml.load(yamlData);
         const proxies = config.proxies || [];
+        let links = []
 
-        const links = proxies.map(proxy => {
-            try {
-                switch (proxy.type?.toLowerCase()) {
-                    case 'vmess':
-                        return this.convertVmess(proxy);
-                    case 'vless':
-                        return this.convertVless(proxy);
-                    case 'trojan':
-                        return this.convertTrojan(proxy);
-                    case 'ss':
-                    case 'shadowsocks':
-                        return this.convertShadowsocks(proxy);
-                    case 'hysteria2':
-                        return this.convertHysteria2(proxy);
-                    case 'ssr':
-                        return this.convertSSR(proxy);
-                    case 'wireguard':
-                        return this.convertWireguardToUrl(proxy);
-                    case 'tuic':
-                        return this.convertTuic(proxy);
-                    case 'anytls':
-                        return this.convertAnyTLS(proxy);
-                    default:
-                        // console.warn(`不支持的协议类型: ${proxy.type}`);
-                        return null;
+        try {
+            links = proxies.map(proxy => {
+                try {
+                    switch (proxy.type?.toLowerCase()) {
+                        case 'vmess':
+                            return this.convertVmess(proxy);
+                        case 'vless':
+                            return this.convertVless(proxy);
+                        case 'trojan':
+                            return this.convertTrojan(proxy);
+                        case 'ss':
+                        case 'shadowsocks':
+                            return this.convertShadowsocks(proxy);
+                        case 'hysteria2':
+                            return this.convertHysteria2(proxy);
+                        case 'ssr':
+                            return this.convertSSR(proxy);
+                        case 'wireguard':
+                            return this.convertWireguardToUrl(proxy);
+                        case 'tuic':
+                            return this.convertTuic(proxy);
+                        case 'anytls':
+                            return this.convertAnyTLS(proxy);
+                        default:
+                            // console.warn(`不支持的协议类型: ${proxy.type}`);
+                            return null;
+                    }
+                } catch (e) {
+                    return null;
                 }
-            } catch (e) {
-                return null;
-            }
-        }).filter(link => link !== null);
+            }).filter(link => link !== null);
+        } catch (e) {
+            throw new Error("Sub convert Error")
+        }
 
         const subscriptionContent = links.join('\n');
         try {
