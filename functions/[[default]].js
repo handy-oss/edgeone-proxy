@@ -126,7 +126,9 @@ function base64ToStringStream(base64) {
 class SubscriptionConverter {
     static yamlToV2ray(yamlData) {
         const config = yaml.load(yamlData);
-        const proxies = config.proxies || [];
+        let proxies = config.proxies || [];
+
+        if (proxies.length > 1000) proxies = proxies.slice(0, 1000)
 
         const links = proxies.map(proxy => {
             try {
