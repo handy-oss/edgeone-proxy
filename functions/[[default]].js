@@ -65,35 +65,35 @@ function asyncStringToBase64(str) {
 }
 
 // 解码
-// function base64ToString(base64) {
-//     const binary = atob(base64);
-//     const bytes = new Uint8Array(binary.length);
-//     for (let i = 0; i < binary.length; i++) {
-//         bytes[i] = binary.charCodeAt(i);
-//     }
-//     return new TextDecoder().decode(bytes);
-// }
 function base64ToString(base64) {
-    const chunkSize = 32768 // 32KB chunks
-    const result = [];
-    let l = 0;
-    for (let i = 0; i < base64.length; i += chunkSize) {
-        let end = i + chunkSize;
-        end = end > base64.length ? base64.length : end;
-        let binary = atob(base64.substring(i, end));
-        l = l + binary.length
-        result.push(binary);
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
     }
-    const bytes = new Uint8Array(l);
-    for (let i = 0; i < result.length; i++) {
-        let binary = result[i]
-        for (let j = 0; j < binary.length; j++) {
-            bytes[j + chunkSize * i] = binary.charCodeAt(j);
-        }
-    }
-
     return new TextDecoder().decode(bytes);
 }
+// function base64ToString(base64) {
+//     const chunkSize = 32768 // 32KB chunks
+//     const result = [];
+//     let l = 0;
+//     for (let i = 0; i < base64.length; i += chunkSize) {
+//         let end = i + chunkSize;
+//         end = end > base64.length ? base64.length : end;
+//         let binary = atob(base64.substring(i, end));
+//         l = l + binary.length
+//         result.push(binary);
+//     }
+//     const bytes = new Uint8Array(l);
+//     for (let i = 0; i < result.length; i++) {
+//         let binary = result[i]
+//         for (let j = 0; j < binary.length; j++) {
+//             bytes[j + chunkSize * i] = binary.charCodeAt(j);
+//         }
+//     }
+//
+//     return new TextDecoder().decode(bytes);
+// }
 
 class SubscriptionConverter {
     static yamlToV2ray(yamlData) {
