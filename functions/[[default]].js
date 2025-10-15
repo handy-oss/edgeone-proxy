@@ -28,22 +28,49 @@ const yaml = (function(){
 // }
 
 function stringToBase64(str) {
-    const chunkSize = 6144 // 6KB chunks
+    // const chunkSize = 6144 // 6KB chunks
+    const chunkSize = 8192 // 8KB chunks
+    // const encoder = new TextEncoder();
+    // const data = encoder.encode(str);
+    // const result = [];
+    //
+    // for (let i = 0; i < data.length; i += chunkSize) {
+    //     let binary = '';
+    //     let end = i + chunkSize;
+    //     end = end > data.length ? data.length : end;
+    //
+    //     // 处理小块，避免大字符串拼接
+    //     for (let j = i; j < end; j++) {
+    //         binary += String.fromCharCode(data[j]);
+    //     }
+    //
+    //     result.push(btoa(binary));
+    // }
+
+    // 大字符串分块处理
     const encoder = new TextEncoder();
-    const data = encoder.encode(str);
     const result = [];
+    let last = ''
 
-    for (let i = 0; i < data.length; i += chunkSize) {
-        let binary = '';
-        let end = i + chunkSize;
-        end = end > data.length ? data.length : end;
-
-        // 处理小块，避免大字符串拼接
-        for (let j = i; j < end; j++) {
-            binary += String.fromCharCode(data[j]);
+    for (let i = 0; i < str.length; i += chunkSize) {
+        const chunk = str.substring(i, i + chunkSize);
+        const data = encoder.encode(chunk);
+        let binary = last;
+        let l = (data.length + last.length) % 3
+        let rem = data.length - l
+        last = ''
+        for (let j = 0; j < data.length; j++) {
+            if (j < rem) {
+                binary += String.fromCharCode(data[j]);
+            } else {
+                last += String.fromCharCode(data[j]);
+            }
         }
 
         result.push(btoa(binary));
+    }
+    if (last) {
+        result.push(btoa(last));
     }
 
     return result.join('');
