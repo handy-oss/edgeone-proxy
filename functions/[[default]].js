@@ -27,18 +27,20 @@ const yaml = (function(){
 //     return btoa(binary);
 // }
 
-function stringToBase64(str, chunkSize = 32768) { // 32KB chunks
+function stringToBase64(str) {
+    const chunkSize = 32768 // 32KB chunks
     const encoder = new TextEncoder();
     const data = encoder.encode(str);
     const result = [];
 
     for (let i = 0; i < data.length; i += chunkSize) {
-        const chunk = data.subarray(i, Math.min(i + chunkSize, data.length));
         let binary = '';
+        let end = i + chunkSize;
+        end = end > data.length ? data.length : end;
 
         // 处理小块，避免大字符串拼接
-        for (let j = 0; j < chunk.length; j++) {
-            binary += String.fromCharCode(chunk[j]);
+        for (let j = i; j < end; j++) {
+            binary += String.fromCharCode(data[j]);
         }
 
         result.push(btoa(binary));
@@ -109,7 +111,11 @@ class SubscriptionConverter {
         }).filter(link => link !== null);
 
         const subscriptionContent = links.join('\n');
-        return  stringToBase64(subscriptionContent);
+        try {
+            return  stringToBase64(subscriptionContent);
+        } catch (e) {
+            return subscriptionContent;
+        }
     }
 
     // VMess 转换
