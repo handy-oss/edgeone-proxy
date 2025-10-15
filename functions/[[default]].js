@@ -128,42 +128,38 @@ class SubscriptionConverter {
         const config = yaml.load(yamlData);
         const proxies = config.proxies || [];
 
-        const links = []
-        for (let i = 0; i < proxies.length; i++) {
-            let proxy = proxies[i]
+        return JSON.stringify(proxies)
+
+        const links = proxies.map(proxy => {
             try {
                 switch (proxy.type?.toLowerCase()) {
                     case 'vmess':
-                        links.push(this.convertVmess(proxy))
-                        break
+                        return this.convertVmess(proxy);
                     case 'vless':
-                        links.push(this.convertVless(proxy));
-                        break
+                        return this.convertVless(proxy);
                     case 'trojan':
-                        links.push(this.convertTrojan(proxy));
-                        break
+                        return this.convertTrojan(proxy);
                     case 'ss':
                     case 'shadowsocks':
-                        links.push(this.convertShadowsocks(proxy));
-                        break
+                        return this.convertShadowsocks(proxy);
                     case 'hysteria2':
-                        links.push(this.convertHysteria2(proxy));
-                        break
+                        return this.convertHysteria2(proxy);
                     case 'ssr':
-                        links.push(this.convertSSR(proxy));
-                        break
+                        return this.convertSSR(proxy);
                     case 'wireguard':
-                        links.push(this.convertWireguardToUrl(proxy));
-                        break
+                        return this.convertWireguardToUrl(proxy);
                     case 'tuic':
-                        rlinks.push(this.convertTuic(proxy));
-                        break
+                        return this.convertTuic(proxy);
                     case 'anytls':
-                        links.push(this.convertAnyTLS(proxy));
-                        break
+                        return this.convertAnyTLS(proxy);
+                    default:
+                        // console.warn(`不支持的协议类型: ${proxy.type}`);
+                        return null;
                 }
-            } catch (e) {}
-        }
+            } catch (e) {
+                return null;
+            }
+        }).filter(link => link !== null);
 
         const subscriptionContent = links.join('\n');
         return subscriptionContent
