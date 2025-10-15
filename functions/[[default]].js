@@ -129,7 +129,7 @@ class SubscriptionConverter {
         const proxies = config.proxies || [];
 
         const links = []
-        for (let i = 0; i < 2000; i++) {
+        for (let i = 0; i < proxies.length; i++) {
             let proxy = proxies[i]
             try {
                 switch (proxy.type?.toLowerCase()) {
