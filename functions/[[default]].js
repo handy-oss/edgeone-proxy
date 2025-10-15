@@ -28,24 +28,7 @@ const yaml = (function(){
 // }
 
 function stringToBase64(str) {
-    // const chunkSize = 6144 // 6KB chunks
     const chunkSize = 8192 // 8KB chunks
-    // const encoder = new TextEncoder();
-    // const data = encoder.encode(str);
-    // const result = [];
-    //
-    // for (let i = 0; i < data.length; i += chunkSize) {
-    //     let binary = '';
-    //     let end = i + chunkSize;
-    //     end = end > data.length ? data.length : end;
-    //
-    //     // 处理小块，避免大字符串拼接
-    //     for (let j = i; j < end; j++) {
-    //         binary += String.fromCharCode(data[j]);
-    //     }
-    //
-    //     result.push(btoa(binary));
-    // }
 
     // 大字符串分块处理
     const encoder = new TextEncoder();
@@ -92,80 +75,75 @@ function asyncStringToBase64(str) {
 }
 
 // 解码
-function base64ToString(base64) {
-    const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-    }
-    return new TextDecoder().decode(bytes);
-}
 // function base64ToString(base64) {
-//     const chunkSize = 32768 // 32KB chunks
-//     const result = [];
-//     let l = 0;
-//     for (let i = 0; i < base64.length; i += chunkSize) {
-//         let end = i + chunkSize;
-//         end = end > base64.length ? base64.length : end;
-//         let binary = atob(base64.substring(i, end));
-//         l = l + binary.length
-//         result.push(binary);
+//     const binary = atob(base64);
+//     const bytes = new Uint8Array(binary.length);
+//     for (let i = 0; i < binary.length; i++) {
+//         bytes[i] = binary.charCodeAt(i);
 //     }
-//     const bytes = new Uint8Array(l);
-//     for (let i = 0; i < result.length; i++) {
-//         let binary = result[i]
-//         for (let j = 0; j < binary.length; j++) {
-//             bytes[j + chunkSize * i] = binary.charCodeAt(j);
-//         }
-//     }
-//
 //     return new TextDecoder().decode(bytes);
 // }
+function base64ToString(base64) {
+    // const chunkSize = 32768 // 32KB chunks
+    // const chunkSize = 32768 // 32KB chunks
+    const chunkSize = 8192 // 8KB chunks
+    const result = [];
+    let l = 0;
+    for (let i = 0; i < base64.length; i += chunkSize) {
+        let binary = atob(base64.substring(i, i + chunkSize));
+        l = l + binary.length
+        result.push(binary);
+    }
+    const bytes = new Uint8Array(l);
+    const size = chunkSize / 4 * 3
+    for (let i = 0; i < result.length; i++) {
+        let binary = result[i]
+        for (let j = 0; j < binary.length; j++) {
+            bytes[j + size * i] = binary.charCodeAt(j);
+        }
+    }
+
+    return new TextDecoder().decode(bytes);
+}
 
 class SubscriptionConverter {
     static yamlToV2ray(yamlData) {
-        let links = []
         const config = yaml.load(yamlData);
         const proxies = config.proxies || [];
 
-        try {
-            links = proxies.map(proxy => {
-                try {
-                    switch (proxy.type?.toLowerCase()) {
-                        case 'vmess':
-                            return this.convertVmess(proxy);
-                        case 'vless':
-                            return this.convertVless(proxy);
-                        case 'trojan':
-                            return this.convertTrojan(proxy);
-                        case 'ss':
-                        case 'shadowsocks':
-                            return this.convertShadowsocks(proxy);
-                        case 'hysteria2':
-                            return this.convertHysteria2(proxy);
-                        case 'ssr':
-                            return this.convertSSR(proxy);
-                        case 'wireguard':
-                            return this.convertWireguardToUrl(proxy);
-                        case 'tuic':
-                            return this.convertTuic(proxy);
-                        case 'anytls':
-                            return this.convertAnyTLS(proxy);
-                        default:
-                            // console.warn(`不支持的协议类型: ${proxy.type}`);
-                            return null;
-                    }
-                } catch (e) {
-                    return null;
+        const links = proxies.map(proxy => {
+            try {
+                switch (proxy.type?.toLowerCase()) {
+                    case 'vmess':
+                        return this.convertVmess(proxy);
+                    case 'vless':
+                        return this.convertVless(proxy);
+                    case 'trojan':
+                        return this.convertTrojan(proxy);
+                    case 'ss':
+                    case 'shadowsocks':
+                        return this.convertShadowsocks(proxy);
+                    case 'hysteria2':
+                        return this.convertHysteria2(proxy);
+                    case 'ssr':
+                        return this.convertSSR(proxy);
+                    case 'wireguard':
+                        return this.convertWireguardToUrl(proxy);
+                    case 'tuic':
+                        return this.convertTuic(proxy);
+                    case 'anytls':
+                        return this.convertAnyTLS(proxy);
+                    default:
+                        // console.warn(`不支持的协议类型: ${proxy.type}`);
+                        return null;
                 }
-            }).filter(link => link !== null);
-        } catch (e) {
-            throw new Error("Sub convert Error")
-        }
+            } catch (e) {
+                return null;
+            }
+        }).filter(link => link !== null);
 
         const subscriptionContent = links.join('\n');
-        // return subscriptionContent
-        return  stringToBase64(subscriptionContent);
+        return stringToBase64(subscriptionContent);
     }
 
     // VMess 转换
