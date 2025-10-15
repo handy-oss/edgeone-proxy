@@ -127,8 +127,11 @@ class SubscriptionConverter {
     static yamlToV2ray(yamlData) {
         const config = yaml.load(yamlData);
         const proxies = config.proxies || [];
-
+        console.log('成功解析yaml数据：', proxies.length);
+        let num = 1
         const links = proxies.map(proxy => {
+            console.log(`处理第${num}个数据：`, proxy);
+            num++
             try {
                 switch (proxy.type?.toLowerCase()) {
                     case 'vmess':
