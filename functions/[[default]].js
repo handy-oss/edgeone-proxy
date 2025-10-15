@@ -128,8 +128,6 @@ class SubscriptionConverter {
         const config = yaml.load(yamlData);
         const proxies = config.proxies || [];
 
-        return JSON.stringify(proxies)
-
         const links = proxies.map(proxy => {
             try {
                 switch (proxy.type?.toLowerCase()) {
