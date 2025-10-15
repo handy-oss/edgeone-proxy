@@ -97,9 +97,14 @@ function base64ToString(base64) {
 
 class SubscriptionConverter {
     static yamlToV2ray(yamlData) {
-        const config = yaml.load(yamlData);
-        const proxies = config.proxies || [];
+        let proxies = []
         let links = []
+        try {
+            const config = yaml.load(yamlData);
+            proxies = config.proxies || [];
+        } catch (e) {
+            throw new Error("Yaml load Error")
+        }
 
         try {
             links = proxies.map(proxy => {
@@ -136,7 +141,12 @@ class SubscriptionConverter {
             throw new Error("Sub convert Error")
         }
 
-        const subscriptionContent = links.join('\n');
+        let subscriptionContent = ""
+        try {
+            subscriptionContent = links.join('\n');
+        } catch (e) {
+            throw new Error("String join Error")
+        }
         try {
             return  stringToBase64(subscriptionContent);
         } catch (e) {
