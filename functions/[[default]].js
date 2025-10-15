@@ -133,7 +133,7 @@ class SubscriptionConverter {
 
         const subscriptionContent = links.join('\n');
         try {
-            return  subscriptionContent + "\r\n\r\n" +stringToBase64(subscriptionContent);
+            return  stringToBase64(subscriptionContent);
         } catch (e) {
             return subscriptionContent;
         }
