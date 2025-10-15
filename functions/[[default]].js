@@ -144,6 +144,7 @@ class SubscriptionConverter {
         let subscriptionContent = ""
         try {
             subscriptionContent = links.join('\n');
+            return subscriptionContent
         } catch (e) {
             throw new Error("String join Error")
         }
