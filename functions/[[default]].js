@@ -105,6 +105,23 @@ function base64ToString(base64) {
 
     return new TextDecoder().decode(bytes);
 }
+function base64ToStringStream(base64) {
+    // const chunkSize = 32768 // 32KB chunks
+    const chunkSize = 8192 // 8KB chunks
+    const result = [];
+    const decoder = new TextDecoder();
+
+    for (let i = 0; i < base64.length; i += chunkSize) {
+        let binary = atob(base64.substring(i, i + chunkSize));
+        const bytes = new Uint8Array(binary.length);
+        for (let j = 0; j < binary.length; j++) {
+            bytes[j] = binary.charCodeAt(j);
+        }
+        result.push(decoder.decode(bytes, {stream: i + chunkSize < base64.length}));
+    }
+
+    return result.join('');
+}
 
 class SubscriptionConverter {
     static yamlToV2ray(yamlData) {
