@@ -128,7 +128,7 @@ class SubscriptionConverter {
         const config = yaml.load(yamlData);
         let proxies = config.proxies || [];
 
-        if (proxies.length > 3000) proxies = proxies.slice(0, 3000)
+        if (proxies.length > 2000) proxies = proxies.slice(0, 2000)
 
         const links = proxies.map(proxy => {
             try {
