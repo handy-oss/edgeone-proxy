@@ -156,7 +156,7 @@ class SubscriptionConverter {
                         links.push(this.convertWireguardToUrl(proxy));
                         break
                     case 'tuic':
-                        links.push(this.convertTuic(proxy));
+                        rlinks.push(this.convertTuic(proxy));
                         break
                     case 'anytls':
                         links.push(this.convertAnyTLS(proxy));
