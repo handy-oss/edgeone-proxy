@@ -28,7 +28,7 @@ const yaml = (function(){
 // }
 
 function stringToBase64(str) {
-    const chunkSize = 32768 // 32KB chunks
+    const chunkSize = 6144 // 6KB chunks
     const encoder = new TextEncoder();
     const data = encoder.encode(str);
     const result = [];
@@ -97,14 +97,9 @@ function base64ToString(base64) {
 
 class SubscriptionConverter {
     static yamlToV2ray(yamlData) {
-        let proxies = []
         let links = []
-        try {
-            const config = yaml.load(yamlData);
-            proxies = config.proxies || [];
-        } catch (e) {
-            throw new Error("Yaml load Error")
-        }
+        const config = yaml.load(yamlData);
+        const proxies = config.proxies || [];
 
         try {
             links = proxies.map(proxy => {
@@ -141,18 +136,9 @@ class SubscriptionConverter {
             throw new Error("Sub convert Error")
         }
 
-        let subscriptionContent = ""
-        try {
-            subscriptionContent = links.join('\n');
-            return subscriptionContent
-        } catch (e) {
-            throw new Error("String join Error")
-        }
-        try {
-            return  stringToBase64(subscriptionContent);
-        } catch (e) {
-            return subscriptionContent;
-        }
+        const subscriptionContent = links.join('\n');
+        // return subscriptionContent
+        return  stringToBase64(subscriptionContent);
     }
 
     // VMess 转换
