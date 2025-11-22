@@ -495,12 +495,15 @@ export async function onRequest(context) {
     const { request } = context;
     const requestUrl = new URL(request.url);
     if (requestUrl.hostname === "translate.mill.ip-ddns.com") {
-        return new Response(request.url.replace("translate.mill.ip-ddns.com", "translate.google.com"), { status: 200 });
+
+        return new Response(JSON.stringify(request.headers), { status: 200 });
+        const header = new Headers(request.headers)
+        header.delete("")
+
         const modifiedRequest = new Request(request.url.replace("translate.mill.ip-ddns.com", "translate.google.com"), {
-            headers: request.headers,
+            headers: header,
             method: request.method,
-            body: request.body,
-            redirect: 'follow' // We can let the proxy service handle redirects.
+            body: request.body
         });
         return fetch(modifiedRequest);
     }
