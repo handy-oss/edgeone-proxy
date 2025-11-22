@@ -3,6 +3,7 @@
  * It leverages a professional third-party proxy to handle anti-bot measures.
  */
 export async function onRequest(context) {
+    const { request } = context;
     const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -79,8 +80,30 @@ export async function onRequest(context) {
 </body>
 </html>`
 
-    const finalHeaders = new Headers({
-        'Content-Type': 'text/html'
-    });
-    return new Response(html, { status: 200 ,headers: finalHeaders});
+    const requestUrl = new URL(request.url);
+
+    if (requestUrl.hostname === "translate.mill.ip-ddns.com") {
+        const modifiedRequest = new Request(request.url.replace("translate.mill.ip-ddns.com", "translate.google.com"), {
+            headers: request.headers,
+            method: request.method,
+            body: request.body,
+            redirect: 'follow' // We can let the proxy service handle redirects.
+        });
+
+        const response = await fetch(modifiedRequest);
+        return response
+
+        // Since the third-party proxy handles all content, we don't need our own HTML rewriter.
+        return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: finalHeaders
+        });
+    } else {
+
+        const finalHeaders = new Headers({
+            'Content-Type': 'text/html'
+        });
+        return new Response(html, { status: 200 ,headers: finalHeaders});
+    }
 }
