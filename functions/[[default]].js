@@ -495,6 +495,7 @@ export async function onRequest(context) {
     const { request } = context;
     const requestUrl = new URL(request.url);
     if (requestUrl.hostname === "translate.mill.ip-ddns.com") {
+        return new Response(request.url.replace("translate.mill.ip-ddns.com", "translate.google.com"), { status: 200 });
         const modifiedRequest = new Request(request.url.replace("translate.mill.ip-ddns.com", "translate.google.com"), {
             headers: request.headers,
             method: request.method,
