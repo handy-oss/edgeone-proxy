@@ -495,13 +495,8 @@ export async function onRequest(context) {
     const { request } = context;
     const requestUrl = new URL(request.url);
     if (requestUrl.hostname === "translate.mill.ip-ddns.com") {
-        let aa = {}
-        request.headers.forEach((v,k)=>{
-            aa[k] = v
-        })
-        return new Response(JSON.stringify(aa), { status: 200 });
         const header = new Headers(request.headers)
-        header.delete("")
+        header.delete("host")
 
         const modifiedRequest = new Request(request.url.replace("translate.mill.ip-ddns.com", "translate.google.com"), {
             headers: header,
