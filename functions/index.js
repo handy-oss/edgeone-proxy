@@ -83,22 +83,15 @@ export async function onRequest(context) {
     const requestUrl = new URL(request.url);
 
     if (requestUrl.hostname === "translate.mill.ip-ddns.com") {
+        const header = new Headers(request.headers)
+        header.delete("host")
+
         const modifiedRequest = new Request(request.url.replace("translate.mill.ip-ddns.com", "translate.google.com"), {
-            headers: request.headers,
+            headers: header,
             method: request.method,
-            body: request.body,
-            redirect: 'follow' // We can let the proxy service handle redirects.
+            body: request.body
         });
-
-        const response = await fetch(modifiedRequest);
-        return response
-
-        // Since the third-party proxy handles all content, we don't need our own HTML rewriter.
-        return new Response(response.body, {
-            status: response.status,
-            statusText: response.statusText,
-            headers: finalHeaders
-        });
+        return fetch(modifiedRequest);
     } else {
 
         const finalHeaders = new Headers({
