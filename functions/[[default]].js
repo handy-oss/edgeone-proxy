@@ -495,7 +495,11 @@ export async function onRequest(context) {
     const { request } = context;
     const requestUrl = new URL(request.url);
     if (requestUrl.hostname === "translate.mill.ip-ddns.com") {
-        return new Response(JSON.stringify(request.headers.entries().toArray()), { status: 200 });
+        let aa = {}
+        request.headers.forEach((v,k)=>{
+            aa[k] = v
+        })
+        return new Response(JSON.stringify(aa), { status: 200 });
         const header = new Headers(request.headers)
         header.delete("")
 
