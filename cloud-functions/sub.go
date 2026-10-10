@@ -1,5 +1,6 @@
 package handler
 
+
 import (
 	"crypto/tls"
 	"encoding/base64"
@@ -27,10 +28,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 	res, err := client.Do(q)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Request Home Fail:" + err.Error()))
 		return
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Request Home Status Fail:" + err.Error()))
 		return
 	}
 	a, _ := io.ReadAll(res.Body)
@@ -88,3 +93,4 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	s := base64.StdEncoding.EncodeToString([]byte(ips))
 	w.Write([]byte(s))
 }
+
