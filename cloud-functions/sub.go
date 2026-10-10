@@ -84,6 +84,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Not Sub Node"))
 		return
 	}
+	w.Write([]byte("star\r\n"))
 	s := base64.StdEncoding.EncodeToString([]byte(ips))
 	w.Write([]byte(s))
 }
