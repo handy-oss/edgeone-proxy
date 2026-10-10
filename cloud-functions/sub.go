@@ -80,6 +80,10 @@ func blog() (ss string) {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	ips := blog()
+	if ips == "" {
+		w.Write([]byte("Not Sub Node"))
+		return
+	}
 	s := base64.StdEncoding.EncodeToString([]byte(ips))
 	w.Write([]byte(s))
 }
