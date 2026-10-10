@@ -1,11 +1,9 @@
 package handler
 
-
 import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/hex"
-	"io"
 	"net"
 	"net/http"
 	"time"
@@ -38,16 +36,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Request Home Status Fail:" + err.Error()))
 		return
 	}
-	a, _ := io.ReadAll(res.Body)
-	w.Write(a)
-	return
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("goquery parse home Fail:" + err.Error()))
 		return
 	}
 	thumb := doc.Find("div.article-panel").First().Find(".a-thumb a")
 	href, exist := thumb.Attr("href")
 	if !exist {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write([]byte("Not home content Fail:" + err.Error()))
 		return
 	}
 
@@ -55,14 +54,20 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	page.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
 	pageRes, err := client.Do(page)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Request Sub Fail:" + err.Error()))
 		return
 	}
 	defer pageRes.Body.Close()
 	if pageRes.StatusCode != 200 {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Request Sub Status Fail:" + err.Error()))
 		return
 	}
 	pageDoc, err := goquery.NewDocumentFromReader(pageRes.Body)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("goquery parse sub Fail:" + err.Error()))
 		return
 	}
 	pre := pageDoc.Find("code")
@@ -93,4 +98,3 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	s := base64.StdEncoding.EncodeToString([]byte(ips))
 	w.Write([]byte(s))
 }
-
