@@ -81,10 +81,6 @@ export async function onRequest(context) {
 </html>`
 
     const requestUrl = new URL(request.url);
-    const finalHeaders = new Headers({
-        'Content-Type': 'text/html'
-    });
-    return new Response(JSON.stringify(request), { status: 200 ,headers: finalHeaders});
 
     if (requestUrl.hostname === "translate.mill.ip-ddns.com") {
         const header = new Headers(request.headers)
