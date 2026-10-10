@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/hex"
+	"io"
 	"net"
 	"net/http"
 	"time"
@@ -11,7 +12,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func blog() (ss string) {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	// https://blog.banyunxiaoxi.icu/
 	q, _ := http.NewRequest("GET", "https://blog.banyunxiaoxi.icu/", nil)
 	q.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
@@ -32,6 +33,9 @@ func blog() (ss string) {
 	if res.StatusCode != 200 {
 		return
 	}
+	a, _ := io.ReadAll(res.Body)
+	w.Write(a)
+	return
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		return
@@ -73,13 +77,9 @@ func blog() (ss string) {
 			s.SetText(e)
 		}
 	})
-	arr := pre.Text()
-	return arr
-}
+	ips := pre.Text()
 
-func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	ips := blog()
 	if ips == "" {
 		w.Write([]byte("Not Sub Node"))
 		return
