@@ -1,12 +1,10 @@
 package handler
 
 import (
-	"crypto/tls"
 	"encoding/base64"
 	"encoding/hex"
-	"net"
+	"io"
 	"net/http"
-	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -16,14 +14,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	q, _ := http.NewRequest("GET", "https://blog.banyunxiaoxi.icu/", nil)
 	q.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
 
-	client := &http.Client{
-		Transport: &http.Transport{
-			DialContext: (&net.Dialer{Timeout: 2 * time.Second}).DialContext,
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-		},
-	}
+	client := &http.Client{}
 	res, err := client.Do(q)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -36,6 +27,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Request Home Status Fail:" + err.Error()))
 		return
 	}
+	a, _ := io.ReadAll(res.Body)
+	w.Write(a)
+	return
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
