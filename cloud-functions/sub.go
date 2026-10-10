@@ -10,6 +10,9 @@ import (
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
+w.WriteHeader(http.StatusBadRequest)
+	w.Write([]byte("error stop"))
+	return
 	// https://blog.banyunxiaoxi.icu/
 	q, _ := http.NewRequest("GET", "https://blog.banyunxiaoxi.icu/", nil)
 	q.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
