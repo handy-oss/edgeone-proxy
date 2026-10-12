@@ -1,7 +1,8 @@
 import * as cheerio from 'cheerio';
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
-const HOME_URL = 'https://blog.banyunxiaoxi.icu/';
+// const HOME_URL = 'https://blog.banyunxiaoxi.icu/';
+const HOME_URL = 'https://api.test.pandaball.cc/ape/pp';
 
 // 将 Response 的 body 读为字符串
 async function readBody(response) {
