@@ -1,8 +1,8 @@
 import * as cheerio from 'cheerio';
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
-const HOME_URL = 'https://blog.banyunxiaoxi.icu/';
-// const HOME_URL = 'https://api.test.pandaball.cc/ape/ff';
+// const HOME_URL = 'https://blog.banyunxiaoxi.icu/';
+const HOME_URL = 'https://api.test.pandaball.cc/ape/ff';
 
 // 将 Response 的 body 读为字符串
 async function readBody(response) {
@@ -16,6 +16,7 @@ export async function onRequest(context) {
         // 第一步：请求首页
         const homeRes = await fetch(HOME_URL, {
             headers: { 'Accept': '*/*', 'User-Agent': USER_AGENT },
+            method: "GET",
             body: null,
             redirect: 'follow'
         });
@@ -47,6 +48,7 @@ export async function onRequest(context) {
         // 第二步：请求子页面
         const pageRes = await fetch(href, {
             headers: { 'Accept': '*/*', 'User-Agent': USER_AGENT },
+            method: "GET",
             body: null,
             redirect: 'follow'
         });
