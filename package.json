@@ -4,6 +4,6 @@
   "type": "module",
   "dependencies": {
     "cheerio": "^1.0.0",
-    "wreq-js": "^3.2.0"
+    "@realtls/js": "^0.2.2"
   }
 }

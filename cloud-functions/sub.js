@@ -1,20 +1,13 @@
-import { fetch as wreqFetch } from 'wreq-js';
+import { realFetch } from '@realtls/js';
 import * as cheerio from 'cheerio';
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36';
 const HOME_URL = 'https://blog.banyunxiaoxi.icu/';
 
-// wreq-js 的浏览器指纹配置
-const WREQ_OPTIONS = {
-    browser: 'chrome_142',   // 使用 Chrome 142 的 TLS/JA4 指纹
-    os: 'windows',           // 模拟 Windows 平台
-};
-
 export async function onRequest(context) {
     try {
         // ===== 第一步：请求首页 =====
-        const homeRes = await wreqFetch(HOME_URL, {
-            ...WREQ_OPTIONS,
+        const homeRes = await realFetch(HOME_URL, {
             headers: { 'User-Agent': USER_AGENT },
         });
 
@@ -29,7 +22,6 @@ export async function onRequest(context) {
         const homeHtml = await homeRes.text();
         const $home = cheerio.load(homeHtml);
 
-        // 查找 div.article-panel 内第一个 .a-thumb a 的 href
         const thumb = $home('div.article-panel').first().find('.a-thumb a');
         const href = thumb.attr('href');
 
@@ -41,8 +33,7 @@ export async function onRequest(context) {
         }
 
         // ===== 第二步：请求子页面 =====
-        const pageRes = await wreqFetch(href, {
-            ...WREQ_OPTIONS,
+        const pageRes = await realFetch(href, {
             headers: { 'User-Agent': USER_AGENT },
         });
 
@@ -75,7 +66,7 @@ export async function onRequest(context) {
                 }
                 $page(el).text(email);
             } catch {
-                // 解码失败则静默跳过
+                // 静默跳过解码失败
             }
         });
 
@@ -88,7 +79,6 @@ export async function onRequest(context) {
             });
         }
 
-        // 与原 Go 代码一致：输出 "star\r\n" + base64(ips)
         const encoded = Buffer.from(ips, 'utf8').toString('base64');
 
         return new Response(`star\r\n${encoded}`, {
