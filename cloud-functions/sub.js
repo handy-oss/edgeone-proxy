@@ -21,7 +21,8 @@ export async function onRequest(context) {
         });
 
         if (!homeRes.ok) {
-            return new Response(`Request Home Status Fail: ${homeRes.status}`, {
+            const home = await homeRes.text()
+            return new Response(`Request Home Status Fail: ${homeRes.status} content: ${home}`, {
                 status: 400,
                 headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
             });
@@ -51,7 +52,8 @@ export async function onRequest(context) {
         });
 
         if (!pageRes.ok) {
-            return new Response(`Request Sub Status Fail: ${pageRes.status}`, {
+            const sub = await pageRes.text()
+            return new Response(`Request Sub Status Fail: ${pageRes.status} content: ${sub}`, {
                 status: 400,
                 headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
             });
