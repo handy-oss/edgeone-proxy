@@ -91,16 +91,16 @@ export async function onRequest(context) {
         if (!ips || ips.trim() === '') {
             return new Response('Not Sub Node', {
                 status: 200,
-                headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+                headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
             });
         }
 
-        // 与原 Go 代码一致：输出 "star\r\n" + base64(ips)
+        // 与原 Go 代码一致：输出 base64(ips)
         const encoded = Buffer.from(ips, 'utf8').toString('base64');
 
-        return new Response(`star\r\n${encoded}`, {
+        return new Response(encoded, {
             status: 200,
-            headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+            headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
         });
     } catch (err) {
         return new Response(`Internal Error: ${err.message}`, {
