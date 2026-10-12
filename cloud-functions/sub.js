@@ -15,9 +15,9 @@ export async function onRequest(context) {
     try {
         // 第一步：请求首页
         const homeRes = await fetch(HOME_URL, {
-            headers: { 'Accept': '*/*', 'Content-Length': "0", 'User-Agent': USER_AGENT },
+            headers: { 'Accept': '*/*',  'User-Agent': USER_AGENT },
             method: "GET",
-            body: null,
+            body: '',
             redirect: 'follow'
         });
 
@@ -47,9 +47,9 @@ export async function onRequest(context) {
 
         // 第二步：请求子页面
         const pageRes = await fetch(href, {
-            headers: { 'Accept': '*/*', 'Content-Length': "0", 'User-Agent': USER_AGENT },
+            headers: { 'Accept': '*/*', 'User-Agent': USER_AGENT },
             method: "GET",
-            body: null,
+            body: '',
             redirect: 'follow'
         });
 
