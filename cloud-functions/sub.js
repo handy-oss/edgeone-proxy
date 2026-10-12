@@ -1,23 +1,21 @@
+import { fetch as wreqFetch } from 'wreq-js';
 import * as cheerio from 'cheerio';
 
-const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
+const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36';
 const HOME_URL = 'https://blog.banyunxiaoxi.icu/';
-// const HOME_URL = 'https://api.test.pandaball.cc/ape/ff';
 
-// 将 Response 的 body 读为字符串
-async function readBody(response) {
-    return await response.text();
-}
+// wreq-js 的浏览器指纹配置
+const WREQ_OPTIONS = {
+    browser: 'chrome_142',   // 使用 Chrome 142 的 TLS/JA4 指纹
+    os: 'windows',           // 模拟 Windows 平台
+};
 
 export async function onRequest(context) {
-    const { request } = context;
-
     try {
-        // 第一步：请求首页
-        const homeRes = await fetch(HOME_URL, {
-            headers: { 'Accept': '*/*', 'User-Agent': USER_AGENT },
-            body: null,
-            redirect: 'follow'
+        // ===== 第一步：请求首页 =====
+        const homeRes = await wreqFetch(HOME_URL, {
+            ...WREQ_OPTIONS,
+            headers: { 'User-Agent': USER_AGENT },
         });
 
         if (!homeRes.ok) {
@@ -28,9 +26,7 @@ export async function onRequest(context) {
             });
         }
 
-        const homeHtml = await readBody(homeRes);
-
-        // 用 cheerio 解析首页
+        const homeHtml = await homeRes.text();
         const $home = cheerio.load(homeHtml);
 
         // 查找 div.article-panel 内第一个 .a-thumb a 的 href
@@ -44,11 +40,10 @@ export async function onRequest(context) {
             });
         }
 
-        // 第二步：请求子页面
-        const pageRes = await fetch(href, {
-            headers: { 'Accept': '*/*', 'User-Agent': USER_AGENT },
-            body: null,
-            redirect: 'follow'
+        // ===== 第二步：请求子页面 =====
+        const pageRes = await wreqFetch(href, {
+            ...WREQ_OPTIONS,
+            headers: { 'User-Agent': USER_AGENT },
         });
 
         if (!pageRes.ok) {
@@ -59,19 +54,17 @@ export async function onRequest(context) {
             });
         }
 
-        const pageHtml = await readBody(pageRes);
+        const pageHtml = await pageRes.text();
         const $page = cheerio.load(pageHtml);
 
-        // 找到所有 <code> 元素
+        // ===== 第三步：解密 Cloudflare 邮箱保护并提取 code 内容 =====
         const codeEls = $page('code');
 
-        // 解密 Cloudflare 邮箱保护（.__cf_email__）
         codeEls.find('.__cf_email__').each((i, el) => {
             const dataCfemail = $page(el).attr('data-cfemail');
             if (!dataCfemail) return;
 
             try {
-                // 将 hex 字符串解码为字节数组
                 const bytes = Buffer.from(dataCfemail, 'hex');
                 if (bytes.length === 0) return;
 
@@ -86,7 +79,6 @@ export async function onRequest(context) {
             }
         });
 
-        // 提取所有 <code> 元素的文本内容
         const ips = codeEls.text();
 
         if (!ips || ips.trim() === '') {
